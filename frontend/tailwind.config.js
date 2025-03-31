@@ -5,7 +5,9 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {  fontFamily: {
+      never: ['Never', 'sans-serif'],
+    },},
   },
   plugins: [],
 }
