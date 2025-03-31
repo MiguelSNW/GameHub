@@ -18,7 +18,13 @@
         <h2 class="text-xl font-semibold text-yellow-700">💰 Ingresos</h2>
         <p class="text-3xl font-bold mt-2">$ {{ datos.ingresos }}</p>
       </div>
-    </div>
+    </div><br>
+    <router-link
+      to="/tienda"
+      class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+    >
+      Ir a Tienda 🛍️
+    </router-link>
     <p class="text-red-500 text-2xl font-bold">¿Se ve rojo? Tailwind funciona.</p>
 
   </div>
@@ -39,7 +45,7 @@ export default {
     }
   },
   mounted() {
-    axios.get('http://localhost:8000/dashboard')
+    axios.get('http://localhost:8000/')
       .then(res => {
         this.datos = res.data
       })

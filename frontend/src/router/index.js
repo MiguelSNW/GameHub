@@ -1,15 +1,13 @@
 // frontend/src/router/index.js
 
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+import Dashboard from '../views/Dashboard.vue'
+import VistaUser from '../views/vistauser.vue'
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  }
-]
+    { path: '/', component: Dashboard },
+    { path: '/vistauser', component: VistaUser },
+  ]
 
 const router = createRouter({
   history: createWebHistory(),
