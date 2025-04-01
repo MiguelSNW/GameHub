@@ -13,9 +13,11 @@
           </button>
 
           <!-- Logo -->
-          <h1 class="font-[Never] text-5xl font-bold text-white tracking-widest">
-            GameHub
-          </h1>
+          <router-link to="/">
+            <h1 class="font-[Never] text-5xl font-bold text-white tracking-widest">
+              GameHub
+            </h1>
+          </router-link>
         </div>
 
         <!-- DERECHA: Enlaces -->
@@ -57,7 +59,6 @@
     </nav>
 
 
-
     <!-- Contenido -->
     <main class="p-6 bg-gray-900 text-violet-700 flex-1">
       <router-view />
@@ -81,7 +82,6 @@
 </template>
 
 
-
 <script>
 export default {
   name: 'App',
@@ -99,7 +99,7 @@ export default {
       if (menu && !menu.contains(event.target)) {
         this.showMenu = false
       }
-    }
+    },
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside)

@@ -7,6 +7,9 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+   define: {
+    'process.env': {}, // previene el error
+  },
   plugins: [
     vue(),
     vueJsx(),
