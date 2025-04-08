@@ -23,7 +23,7 @@ class ProductosModel extends Model
         'valoruser',
     ];
 
-    // 🔁 Relaciones
+    // Relaciones
 
     public function categoria()
     {

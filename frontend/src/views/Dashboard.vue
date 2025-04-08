@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
@@ -7,6 +7,7 @@ import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 import { useRouter } from 'vue-router'
+import LoadingScreen from '@/components/LoadingScreen.vue'
 
 const router = useRouter()
 
@@ -14,25 +15,29 @@ const router = useRouter()
 const mejoresValorados = ref([])
 const proximosLanzamientos = ref([])
 
+// Variable para el loader
+const isLoading = ref(true)
+
 // Dropdown de búsqueda
 const terminoBusqueda = ref('')
 const resultados = ref([])
 const mostrarDropdown = ref(false)
 const buscadorRef = ref(null)
+
 const handleClickOutside = (event) => {
   if (buscadorRef.value && !buscadorRef.value.contains(event.target)) {
     mostrarDropdown.value = false
   }
 }
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
-
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-// Buscar al escribir
+// Buscar en tiempo real
 const buscarEnTiempoReal = async () => {
   const termino = terminoBusqueda.value.trim()
   if (termino.length < 2) {
@@ -40,15 +45,13 @@ const buscarEnTiempoReal = async () => {
     mostrarDropdown.value = false
     return
   }
-  
   if (!termino) {
     resultados.value = []
-    mostrarDropdown.value = false // se cierra al vaciar el input
+    mostrarDropdown.value = false
     return
   }
-
   try {
-    const res = await axios.get(`http://localhost:8000/productos/buscar?q=${encodeURIComponent(termino)}`)
+    const res = await axios.get(`/productos/buscar?q=${encodeURIComponent(termino)}`)
     resultados.value = res.data
     mostrarDropdown.value = true
   } catch (err) {
@@ -58,13 +61,13 @@ const buscarEnTiempoReal = async () => {
   }
 }
 
-// Ir al detalle
+// Ir al detalle de producto
 const irADetalle = (id) => {
   router.push(`/producto/${id}`)
   resetBuscador()
 }
 
-// Ir a vista completa de resultados
+// Ir a la vista completa de la búsqueda
 const irABusqueda = () => {
   if (terminoBusqueda.value.trim()) {
     router.push({ name: 'Busqueda', query: { q: terminoBusqueda.value } })
@@ -80,51 +83,19 @@ const resetBuscador = () => {
 
 // Categorías
 const categorias = [
-  {
-    nombre: 'PlayStation 5',
-    imagen: '/images/categorias/ps5.jpg',
-    ruta: '/categoria/playstation5'
-  },
-  {
-    nombre: 'Nintendo Switch',
-    imagen: '/images/categorias/switch.jpg',
-    ruta: '/categoria/nintendo-switch'
-  },
-  {
-    nombre: 'PlayStation 4',
-    imagen: '/images/categorias/ps4.jpg',
-    ruta: '/categoria/playstation4'
-  },
-  {
-    nombre: 'Xbox Series',
-    imagen: '/images/categorias/xbox.jpg',
-    ruta: '/categoria/xbox-series'
-  },
-  {
-    nombre: 'Consolas',
-    imagen: '/images/categorias/consolas.jpg',
-    ruta: '/categoria/consolas'
-  },
-  {
-    nombre: 'PC',
-    imagen: '/images/categorias/pc.jpg',
-    ruta: '/categoria/pc'
-  },
-  {
-    nombre: 'Merchandising',
-    imagen: '/images/categorias/merchandising.jpg',
-    ruta: '/categoria/merchandising'
-  },
-  {
-    nombre: 'Cómics',
-    imagen: '/images/categorias/comic.jpg',
-    ruta: '/categoria/comics'
-  }
+  { nombre: 'PlayStation 5', imagen: '/images/categorias/ps5.jpg', ruta: '/categoria/ps5' },
+  { nombre: 'Nintendo Switch', imagen: '/images/categorias/switch.jpg', ruta: '/categoria/nintendo-switch' },
+  { nombre: 'PlayStation 4', imagen: '/images/categorias/ps4.jpg', ruta: '/categoria/ps4' },
+  { nombre: 'Xbox Series', imagen: '/images/categorias/xbox.jpg', ruta: '/categoria/xbox' },
+  { nombre: 'Consolas', imagen: '/images/categorias/consolas.jpg', ruta: '/categoria/consolas' },
+  { nombre: 'PC', imagen: '/images/categorias/pc.jpg', ruta: '/categoria/pc' },
+  { nombre: 'Merchandising', imagen: '/images/categorias/merchandising.jpg', ruta: '/categoria/merchandising' },
+  { nombre: 'Cómics', imagen: '/images/categorias/comic.jpg', ruta: '/categoria/comics' }
 ]
 
-// Productos destacados
+// Productos destacados y próximos lanzamientos
 onMounted(() => {
-  axios.get('http://localhost:8000/productos/mejoresval')
+  axios.get('/productos/mejoresval')
     .then(res => {
       mejoresValorados.value = res.data
     })
@@ -132,13 +103,18 @@ onMounted(() => {
       console.error('Error al cargar productos mejor valorados:', err)
     })
 
-  axios.get('http://localhost:8000/productos/proxlanzamientos')
+  axios.get('/productos/proxlanzamientos')
     .then(res => {
       proximosLanzamientos.value = res.data
     })
     .catch(err => {
       console.error('Error al cargar productos de próximo lanzamiento:', err)
     })
+
+  // Simular carga: Mostrar el loader por 4 segundos
+  setTimeout(() => {
+    isLoading.value = false
+  }, 4000)
 })
 </script>
 
@@ -174,7 +150,7 @@ onMounted(() => {
       </Swiper>
 
       <!-- BUSCADOR -->
-      <div ref="buscadorRef" class="relative w-full md:w-96 mx-auto mb-6 z-50">
+      <div ref="buscadorRef" class="relative w-full md:w-96 mx-auto mb-6 z-0">
         <input v-model="terminoBusqueda" @input="buscarEnTiempoReal" @keyup.enter="irABusqueda" type="text"
           placeholder="🔍 Busca tu próximo juego favorito..."
           class="w-full px-5 py-3 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-600 shadow-md transition" />
@@ -200,31 +176,40 @@ onMounted(() => {
       </div>
 
       <section class="border border-indigo-500 rounded px-4 py-8">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
-          <router-link v-for="producto in proximosLanzamientos" :key="producto.id" :to="`/producto/${producto.id}`"
-            class="block">
-            <div
-              class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
-              <img :src="`/${producto.imagen}`" alt="Carátula del juego"
-                class="h-[250px] w-full object-contain mb-4 rounded" />
-              <div>
-                <h3 class="text-lg font-semibold text-violet-700 hover:text-blue-800 transition-colors">
-                  {{ producto.nombre }}
-                </h3>
-                <p class="text-gray-700">{{ producto.precio }}€</p>
-              </div>
+  <!-- Contenedor con alto mínimo y centrado para el loader -->
+  <div class="min-h-[400px] flex items-center justify-center">
+    <template v-if="isLoading">
+      <LoadingScreen />
+    </template>
+    <template v-else>
+      <!-- Si ya cargó, se muestra el listado en grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
+        <router-link
+          v-for="producto in proximosLanzamientos"
+          :key="producto.id"
+          :to="`/producto/${producto.id}`"
+          class="block"
+        >
+          <div class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
+            <img :src="`/${producto.imagen}`" alt="Carátula del juego"
+                 class="h-[250px] w-full object-contain mb-4 rounded" />
+            <div>
+              <h3 class="text-lg font-semibold text-violet-700 hover:text-blue-800 transition-colors">
+                {{ producto.nombre }}
+              </h3>
+              <p class="text-gray-700">{{ producto.precio }}€</p>
             </div>
-          </router-link>
-        </div>
-
-
-      </section>
+          </div>
+        </router-link>
+      </div>
+    </template>
+  </div>
+</section>
     </div>
 
 
 
-
+    <!-- Banner -->
     <section class="bg-violet-950 text-white py-8 text-center mb-8">
       <h2 class="text-3xl font-bold mb-2 tracking-wide">¿TIENES CONSOLAS ANTIGUAS?</h2>
       <p class="text-lg mb-4">Nosotros te la compramos a un precio suculento.</p>
@@ -248,25 +233,36 @@ onMounted(() => {
       </div>
 
       <section class="border border-indigo-500 rounded px-4 py-8 mb-8">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
-          <router-link v-for="producto in mejoresValorados" :key="producto.id" :to="`/producto/${producto.id}`"
-            class="block">
-            <div
-              class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
-              <img :src="`/${producto.imagen}`" alt="Carátula del juego"
-                class="h-[250px] w-full object-contain mb-4 rounded" />
-              <div>
-                <h3 class="text-lg font-semibold text-violet-700 hover:text-blue-800 transition-colors">
-                  {{ producto.nombre }}
-                </h3>
-                <p class="text-gray-700">{{ producto.precio }}€</p>
-              </div>
+  <!-- Contenedor con alto mínimo y centramiento -->
+  <div class="min-h-[400px] flex items-center justify-center">
+    <template v-if="isLoading">
+      <!-- Se muestra el loading screen centrado -->
+      <LoadingScreen />
+    </template>
+    <template v-else>
+      <!-- Si no está cargando, se muestra el listado -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
+        <router-link 
+          v-for="producto in mejoresValorados" 
+          :key="producto.id" 
+          :to="`/producto/${producto.id}`" 
+          class="block"
+        >
+          <div class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
+            <img :src="`/${producto.imagen}`" alt="Carátula del juego"
+                 class="h-[250px] w-full object-contain mb-4 rounded" />
+            <div>
+              <h3 class="text-lg font-semibold text-violet-700 hover:text-blue-800 transition-colors">
+                {{ producto.nombre }}
+              </h3>
+              <p class="text-gray-700">{{ producto.precio }}€</p>
             </div>
-          </router-link>
-        </div>
-
-      </section>
+          </div>
+        </router-link>
+      </div>
+    </template>
+  </div>
+</section>
 
 
     </div>
@@ -293,15 +289,25 @@ onMounted(() => {
     </div>
 
     <section class="border border-indigo-500 rounded px-4 py-8">
-
-
+  <!-- Contenedor con alto mínimo y centrado -->
+  <div class="min-h-[400px] flex items-center justify-center">
+    <template v-if="isLoading">
+      <LoadingScreen />
+    </template>
+    <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
-        <router-link v-for="producto in proximosLanzamientos" :key="producto.id" :to="`/producto/${producto.id}`"
-          class="block">
-          <div
-            class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
-            <img :src="`/${producto.imagen}`" alt="Carátula del juego"
-              class="h-[250px] w-full object-contain mb-4 rounded" />
+        <router-link 
+          v-for="producto in proximosLanzamientos" 
+          :key="producto.id" 
+          :to="`/producto/${producto.id}`" 
+          class="block"
+        >
+          <div class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
+            <img 
+              :src="`/${producto.imagen}`" 
+              alt="Carátula del juego" 
+              class="h-[250px] w-full object-contain mb-4 rounded" 
+            />
             <div>
               <h3 class="text-lg font-semibold text-violet-700 hover:text-blue-800 transition-colors">
                 {{ producto.nombre }}
@@ -310,14 +316,10 @@ onMounted(() => {
             </div>
           </div>
         </router-link>
-
-
       </div>
-
-
-
-
-    </section>
+    </template>
+  </div>
+</section>
 
     <section class="max-w-7xl mx-auto px-4 py-8 mb-8">
       <h2 class="text-xl font-bold text-violet-700 mb-8">EXPLORA POR CATEGORÍAS</h2>

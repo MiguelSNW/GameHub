@@ -43,4 +43,85 @@ public function buscar(Request $request)
 
     return response()->json($productos);
 }
+
+public function catSwitch ()
+{
+    $productos = ProductosModel::where('plataforma_id', '1')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
+
+public function catSwitch2 ()
+{
+    $productos = ProductosModel::where('plataforma_id', '8')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
+
+public function catPs4 ()
+{
+    $productos = ProductosModel::where('plataforma_id', '3')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
+
+public function catPs5 ()
+{
+    $productos = ProductosModel::where('plataforma_id', '2')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
+
+public function catXbox ()
+{
+    $productos = ProductosModel::where('plataforma_id', '4')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
+
+public function catPc ()
+{
+    $productos = ProductosModel::where('plataforma_id', '5')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
+
+public function catComic ()
+{
+    $productos = ProductosModel::where('categoria_id', '4')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
+
+public function catMerchan ()
+{
+    $productos = ProductosModel::where('categoria_id', '3')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
+
+public function catConsolas ()
+{
+    $productos = ProductosModel::where('categoria_id', '2')
+        ->orderBy('nombre')
+        ->get();
+
+    return response()->json($productos);
+}
 }

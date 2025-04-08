@@ -33,7 +33,7 @@
 })
   
   onMounted(async () => {
-    const res = await axios.get(`http://localhost:8000/productos/${route.params.id}`)
+    const res = await axios.get(`/productos/${route.params.id}`)
     producto.value = res.data
   })
   </script>

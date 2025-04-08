@@ -1,22 +1,19 @@
 <?php
 // config/cors.php
 return [
+    'paths' => ['*'],  // Permite todas las rutas (especificar 'api/*' si solo quieres las rutas de la API)
 
-    'paths' => ['*'],
+    'allowed_methods' => ['*'],  // Permite todos los métodos (GET, POST, PUT, DELETE, etc.)
 
-    'allowed_methods' => ['*'],
+    'allowed_origins' => ['http://localhost:5173'],  // Permite solicitudes desde tu frontend (Vue.js)
 
-    'allowed_origins' => ['http://localhost:5173'],
-
-    'allowed_origins_patterns' => [],
-
-    'allowed_headers' => ['*'],
+    'allowed_headers' => ['*'],  // Permite todos los encabezados
 
     'exposed_headers' => [],
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
-
+    'supports_credentials' => true,  // Permite enviar cookies si es necesario (por ejemplo, para la autenticación de sesión)
 ];
+
 

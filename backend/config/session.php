@@ -168,9 +168,6 @@ return [
     | the cookie from being sent to you when it can't be done securely.
     |
     */
-
-    'secure' => env('SESSION_SECURE_COOKIE'),
-
     /*
     |--------------------------------------------------------------------------
     | HTTP Access Only
@@ -199,7 +196,9 @@ return [
     |
     */
 
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),
+'same_site' => 'lax',  // Cambiar 'none' a 'lax' si no necesitas SameSite=None
+'secure' => env('SESSION_SECURE_COOKIE', false),  // Asegúrate de que sea false si no usas HTTPS
+
 
     /*
     |--------------------------------------------------------------------------
