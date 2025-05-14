@@ -41,4 +41,8 @@ class UsuarioModel extends Authenticatable implements JWTSubject
     {
         return $this->clave;
     }
+    public function carrito()
+{
+    return $this->hasOne(Carrito::class, 'usuario_id', 'dni');
+}
 }

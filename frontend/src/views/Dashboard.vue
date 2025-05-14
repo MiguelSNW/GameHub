@@ -170,7 +170,7 @@ onMounted(() => {
     <div class="max-w-7xl mx-auto px-4 mb-8">
       <div class="flex justify-between items-center mb-2 ml-2">
         <h2 class="text-xl font-bold text-violet-700">¡PRÓXIMOS LANZAMIENTOS!</h2>
-        <a href="/todos-los-articulos" class="text-violet-700 hover:text-blue-800 text-xl font-bold transition-colors">
+        <a href="/productos" class="text-violet-700 hover:text-blue-800 text-xl font-bold transition-colors">
           VER TODOS LOS BOMBAZOS | >
         </a>
       </div>
@@ -190,7 +190,7 @@ onMounted(() => {
           :to="`/producto/${producto.id}`"
           class="block"
         >
-          <div class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
+          <div class="border border-slate-900 bg-indigo-950 p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
             <img :src="`/${producto.imagen}`" alt="Carátula del juego"
                  class="h-[250px] w-full object-contain mb-4 rounded" />
             <div>
@@ -227,7 +227,7 @@ onMounted(() => {
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex justify-between items-center mb-2 ml-2">
         <h2 class="text-xl font-bold text-violet-700">¡ARTÍCULOS MEJORES VALORADOS!</h2>
-        <a href="/todos-los-articulos" class="text-violet-700 hover:text-blue-800 text-xl font-bold transition-colors">
+        <a href="/productos" class="text-violet-700 hover:text-blue-800 text-xl font-bold transition-colors">
           VER TODOS NUESTROS ARTÍCULOS | >
         </a>
       </div>
@@ -269,10 +269,10 @@ onMounted(() => {
 
     <section class="bg-violet-950 text-white py-8 text-center mb-8">
       <h2 class="text-3xl font-bold mb-2 tracking-wide">¿TIENES ALGÚN PROBLEMA TÉCNICO?</h2>
-      <p class="text-lg mb-4">Nosotros te reparamos cualquier consola sujeta a tarifa fija.</p>
+      <p class="text-lg mb-4">Nosotros te contactamos en el momento.</p>
       <a href="/novedades"
         class="inline-block bg-white text-violet-950 font-semibold px-6 py-2 rounded hover:bg-gray-100 transition">
-        Ver tarifas
+        Abrir asistente virtual
       </a>
     </section>
   </div>
@@ -283,7 +283,7 @@ onMounted(() => {
   <div class="max-w-7xl mx-auto px-4 mb-8">
     <div class="flex justify-between items-center mb-2 ml-2">
       <h2 class="text-xl font-bold text-violet-700">¡ARTÍCULOS MÁS VENDIDOS!</h2>
-      <a href="/todos-los-articulos" class="text-violet-700 hover:text-blue-800 text-xl font-bold transition-colors">
+      <a href="/productos" class="text-violet-700 hover:text-blue-800 text-xl font-bold transition-colors">
         VER TODOS NUESTROS ARTÍCULOS | >
       </a>
     </div>

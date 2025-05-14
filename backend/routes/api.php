@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Models\UsuarioModel;
 use App\Http\Controllers\ProductoCtrl;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\UsuarioCtrl;
+use App\Http\Controllers\CarritoController;
+
 
 // Dashboard resumen
 Route::get('/dashboard', function () {
@@ -20,10 +25,19 @@ Route::get('/viewuser', function () {
     return response()->json(UsuarioModel::all());
 });
 
+
+Route::middleware('auth:api')->delete('/deleteuser/{dni}', [UsuarioCtrl::class, 'deleteUserByDni']);
+
 Route::delete('/viewuser/{dni}', function ($dni) {
     UsuarioModel::destroy($dni);
     return response()->json(['mensaje' => 'Usuario eliminado']);
 });
+
+Route::put('/updateuser/{dni}', [UsuarioCtrl::class, 'updateUser'])->middleware('auth:api');
+Route::post('/insertuser', [UsuarioCtrl::class, 'store'])->middleware('auth:api'); // Asegura que solo usuarios autenticados puedan acceder
+
+
+
 
 Route::middleware('jwt.auth')->get('/getUser', function (Request $request) {
     return response()->json($request->user());
@@ -34,6 +48,7 @@ Route::get('/productos/mejoresval', [ProductoCtrl::class, 'mejoresValorados']);
 Route::get('/productos/proxlanzamientos', [ProductoCtrl::class, 'proximosLanzamientos']);
 Route::get('/productos/buscar', [ProductoCtrl::class, 'buscar']);
 Route::get('/productos/{id}', [ProductoCtrl::class, 'show']);
+Route::get('/productos', [ProductoCtrl::class, 'allShow']);
 
 // Categorías de productos
 Route::get('/productos/categorias/nintendo-switch', [ProductoCtrl::class, 'catSwitch']);
@@ -49,3 +64,45 @@ Route::get('/productos/categorias/consolas', [ProductoCtrl::class, 'catConsolas'
 // Login
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
+
+//INTENTO DE CHATBOT
+Route::post('/chat', function (Request $request) {
+    $mensaje = $request->input('mensaje');
+    if (!$mensaje) {
+        Log::info('Error en /chat: mensaje vacío', ['ip' => $request->ip()]);
+        return response()->json(['error' => 'El mensaje es requerido'], 400);
+    }
+
+    // Construimos el prompt para que el modelo genere una respuesta nueva
+    $prompt = "Eres un asistente virtual especializado en ayudar a clientes en una tienda online. Responde de forma concisa y no repitas el mensaje del usuario.\n\nUsuario: " . $mensaje . "\nAsistente:";
+
+    // Realiza la solicitud a la API de Hugging Face
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . env('HUGGINGFACE_API_KEY'),
+        'Content-Type'  => 'application/json',
+    ])->post('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', [
+        'inputs' => $prompt,
+    ]);
+
+    if ($response->successful()) {
+        $data = $response->json();
+        // La estructura de la respuesta suele ser un array con la clave 'generated_text'
+        $respuestaIA = isset($data[0]['generated_text']) ? $data[0]['generated_text'] : 'Lo siento, no pude procesar tu mensaje';
+        Log::info('Solicitud exitosa en /chat', ['respuesta' => $respuestaIA]);
+        return response()->json(['respuesta' => $respuestaIA]);
+    } else {
+        Log::error('Error en /chat al comunicarse con la API de Hugging Face', [
+            'status' => $response->status(),
+            'body' => $response->body()
+        ]);
+        return response()->json(['error' => 'Error al comunicarse con la API de Hugging Face'], $response->status());
+    }
+
+ 
+});
+
+
+// CARRITO
+Route::middleware(['auth:api'])->post('/carrito', [CarritoController::class, 'store']);
+Route::middleware('auth:api')->get('/carrito', [CarritoController::class, 'index']);
+Route::middleware('auth:api')->delete('/carrito/{producto_id}', [CarritoController::class, 'destroy']);

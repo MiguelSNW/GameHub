@@ -16,9 +16,17 @@ import catConsola from '../views/categorias/consolas.vue'
 import Login from '../views/auth/login.vue'
 import Profile from '../views/usuarios/Perfil.vue'
 import PaneldeControl from '@/views/usuarios/administrador/PaneldeControl.vue'
+import TodosProductos from '@/views/productos/Todos.vue'
+import ChatAssistant from '@/views/usuarios/ChatAssistant.vue'
+import viewUser from '@/views/usuarios/GestionUser.vue'
+import Carrito from '@/views/carrito/Carrito.vue'
 
 const routes = [
+
+  // Ruta principal
     { path: '/', name: 'Index', component: Dashboard },
+   
+   // Rutas de productos
     { path: '/producto/:id', component: ProductoDetalle },
     { path: '/busqueda', name: 'Busqueda', component: Busqueda },
     { path: '/categoria/nintendo-switch', name: 'Nitendo Switch', component: catSwitch },
@@ -30,9 +38,21 @@ const routes = [
     { path: '/categoria/comics', name: 'Cómics', component: catComic},
     { path: '/categoria/merchandising', name: 'Merchandising', component: catMerchan},
     { path: '/categoria/consolas', name: 'Consolas', component: catConsola},
+    { path: '/productos', name: 'Todos Productos', component: TodosProductos },
+
+    //Ruta de asistente virtual
+    { path: '/chat', name: 'Chat Assistant', component: ChatAssistant, meta: { requiresAuth: true } },
+
+    // Rutas de autenticación
     { path: '/auth/login', name: 'Login', component: Login},
     { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
-    { path: '/administrador', name: 'Panel de Control', component: PaneldeControl, meta: { requiresAuth: true } },
+
+    // Rutas de administración
+    { path: '/administrador', name: 'Panel de Control', component: PaneldeControl, meta: { requiresAuth: true }, beforeEnter: isAdmin },
+    { path: '/admin/viewuser', name: 'Panel Usuario', component: viewUser, meta: { requiresAuth: true }, beforeEnter: isAdmin },
+
+    //Rutas de carrito
+    { path: '/checkout', name: 'Carrito', component: Carrito, meta: { requiresAuth: true } },
   ]
 
 const router = createRouter({
@@ -56,6 +76,16 @@ router.beforeEach((to, from, next) => {
     next() // Si la ruta no requiere autenticación, continúa
   }
 })
+
+// Método para verificar si el usuario es admin
+function isAdmin(to, from, next) {
+  const userRole = localStorage.getItem('userRole'); // Obtener el rol del usuario desde localStorage
+  if (userRole === 'admin') {
+    return next();  // Si es admin, permitir el acceso
+  }
+  return next('/');  // Si no es admin, redirigir a la página de inicio
+}
+
 
 export default router
 

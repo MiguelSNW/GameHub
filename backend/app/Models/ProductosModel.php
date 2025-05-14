@@ -34,4 +34,11 @@ class ProductosModel extends Model
     {
         return $this->belongsTo(Plataforma::class, 'plataforma_id');
     }
+    public function carritos()
+    {
+        return $this->belongsToMany(Carrito::class, 'carrito_producto')
+            ->withPivot('cantidad')
+            ->withTimestamps();
+    }
+  
 }

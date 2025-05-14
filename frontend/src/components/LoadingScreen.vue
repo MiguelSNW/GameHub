@@ -1,10 +1,6 @@
 <template>
   <div class="flex items-center justify-center">
-    <img
-      src="@/assets/loading-bar.gif"
-      alt="Cargando..."
-      class="w-16 h-16"
-    />
+    <i class="pi pi-spin pi-spinner text-white text-5xl p-1"></i>
   </div>
 </template>
 

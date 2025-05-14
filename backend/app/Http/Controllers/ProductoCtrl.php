@@ -124,4 +124,10 @@ public function catConsolas ()
 
     return response()->json($productos);
 }
+
+public function allShow()
+{
+    $productos = ProductosModel::all();
+    return response()->json($productos);
+}
 }
