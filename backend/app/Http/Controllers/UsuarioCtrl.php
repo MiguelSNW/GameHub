@@ -6,109 +6,208 @@ use App\Models\UsuarioModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class UsuarioCtrl extends Controller
 {
-    // Método para eliminar un usuario por DNI
+    // Eliminar usuario por DNI
     public function deleteUserByDni($dni)
     {
-        // Buscar el usuario por su DNI
         $usuario = UsuarioModel::find($dni);
 
-        // Verificar si el usuario existe
         if ($usuario) {
-            // Eliminar el usuario
             $usuario->delete();
-
-            // Devolver una respuesta exitosa
             return response()->json(['message' => 'Usuario eliminado correctamente.'], 200);
         }
 
-        // Si el usuario no se encuentra, devolver un error
         return response()->json(['message' => 'Usuario no encontrado.'], 404);
     }
 
+    // Actualizar usuario
+   // Actualizar usuario
     public function updateUser(Request $request, $dni)
     {
         if (!Auth::check()) {
             return response()->json(['error' => 'No autorizado'], 401);
         }
-    
-        // Validación de los datos
-        $request->validate([
-            'usuario' => 'required|string|max:255',
-            'nombre' => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
-            'correo' => 'required|email',
-            'telefono' => 'required|regex:/^[0-9]{9}$/',
-            'nivel' => 'required|numeric|min:0|max:10',
-            'tipouser' => 'required|in:admin,usuario',
-        ]);
-    
-        // Buscar el usuario por su DNI
+
         $user = UsuarioModel::find($dni);
-    
         if (!$user) {
             return response()->json(['message' => 'Usuario no encontrado.'], 404);
         }
-    
-        // Actualizar los datos del usuario
-        $user->update([
-            'usuario' => $request->usuario,
-            'nombre' => $request->nombre,
-            'apellidos' => $request->apellidos,
-            'correo' => $request->correo,
-            'telefono' => $request->telefono,
-            'nivel' => $request->nivel,
-            'tipouser' => $request->tipouser,
-        ]);
-    
-        // Si la contraseña es proporcionada, actualizarla
-        if ($request->has('clave') && !empty($request->clave)) {
-            $user->update(['clave' => bcrypt($request->clave)]); // Encriptar la contraseña
-        }
-    
-        return response()->json(['message' => 'Usuario actualizado correctamente', 'user' => $user], 200);
-    }
 
-    // Función para insertar el usuario
-    public function store(Request $request)
-    {
-        // Validaciones
+        $dniOriginal = $user->dni;
+
         $validator = Validator::make($request->all(), [
-            'dni' => 'required|unique:usuarios,dni',
-            'nombre' => 'required',
-            'apellidos' => 'required',
-            'usuario' => 'required',
-            'correo' => 'required|email',
-            'telefono' => 'required|regex:/^[0-9]{9}$/', // Asegurarse de que el teléfono tenga 9 dígitos
-            'nivel' => 'required|numeric|min:0|max:10',
-            'tipouser' => 'required',
-            'clave' => 'required|string|min:8', // Validación de contraseña mínima
+            'dni' => [
+                'required',
+                'string',
+                Rule::unique('usuarios')->ignore($dniOriginal, 'dni'),
+            ],
+            'correo' => [
+                'required',
+                'email',
+                Rule::unique('usuarios')->ignore($dniOriginal, 'dni'),
+            ],
+            'usuario' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('usuarios')->ignore($dniOriginal, 'dni'),
+            ],
+            'nombre' => 'required|string|max:255',
+            'apellidos' => 'required|string|max:255',
+            'telefono' => 'required|regex:/^[0-9]{9}$/',
+            'tipouser' => 'required|in:admin,usuario',
+            'clave' => 'nullable|string|min:8',
+        ], [
+            'dni.unique' => 'Ya existe un usuario con este DNI.',
+            'correo.unique' => 'Ya existe un usuario con este correo.',
+            'usuario.unique' => 'Este nombre de usuario ya está en uso.',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422); // Error en la validación
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Crear el nuevo usuario
-        $user = UsuarioModel::create([
-            'dni' => $request->dni,
-            'nombre' => $request->nombre,
-            'apellidos' => $request->apellidos,
-            'usuario' => $request->usuario,
-            'correo' => $request->correo,
-            'telefono' => $request->telefono,
-            'nivel' => $request->nivel,
-            'tipouser' => $request->tipouser,
-            'clave' => bcrypt($request->clave), // Encriptar la contraseña antes de guardarla
-        ]);
+        // Si cambia el DNI, actualizamos pedidos
+        if ($request->dni !== $dniOriginal) {
+            DB::table('pedidos')
+                ->where('usuario_dni', $dniOriginal)
+                ->update(['usuario_dni' => $request->dni]);
+        }
 
-        // Retornar la respuesta de éxito
-        return response()->json(['message' => 'Usuario creado correctamente', 'user' => $user], 201);
-    }
-    public function carrito()
-{
-    return $this->hasOne(Carrito::class);
+        if (
+    UsuarioModel::whereRaw('LOWER(usuario) = ?', [strtolower($request->usuario)])
+        ->where('dni', '!=', $dni)
+        ->exists()
+) {
+    return response()->json([
+        'errors' => ['usuario' => ['Este nombre de usuario ya está en uso.']]
+    ], 422);
 }
+
+        $user->dni = $request->dni;
+        $user->usuario = $request->usuario;
+        $user->nombre = $request->nombre;
+        $user->apellidos = $request->apellidos;
+        $user->correo = $request->correo;
+        $user->telefono = $request->telefono;
+        $user->tipouser = $request->tipouser;
+
+        if ($request->filled('clave')) {
+            $user->clave = bcrypt($request->clave);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Usuario actualizado correctamente',
+            'user' => $user
+        ]);
+    }
+
+   public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'dni' => 'required|string|unique:usuarios,dni',
+        'correo' => 'required|email|unique:usuarios,correo',
+        'usuario' => 'required|string|max:255|unique:usuarios,usuario',
+        'nombre' => 'required|string|max:255',
+        'apellidos' => 'required|string|max:255',
+        'telefono' => 'required|regex:/^[0-9]{9}$/',
+        'clave' => 'required|string|min:8',
+        'tipouser' => 'required|in:admin,usuario',
+    ], [
+        // Mensajes personalizados
+        'dni.required' => 'El DNI es obligatorio.',
+        'dni.unique' => 'Este DNI ya está registrado.',
+
+        'correo.required' => 'El correo es obligatorio.',
+        'correo.email' => 'El correo debe ser una dirección válida.',
+        'correo.unique' => 'Este correo ya está registrado.',
+
+        'usuario.required' => 'El nombre de usuario es obligatorio.',
+        'usuario.unique' => 'Este nombre de usuario ya está en uso.',
+        'usuario.max' => 'El nombre de usuario no puede tener más de 255 caracteres.',
+
+        'nombre.required' => 'El nombre es obligatorio.',
+        'nombre.max' => 'El nombre no puede tener más de 255 caracteres.',
+
+        'apellidos.required' => 'Los apellidos son obligatorios.',
+        'apellidos.max' => 'Los apellidos no pueden tener más de 255 caracteres.',
+
+        'telefono.required' => 'El teléfono es obligatorio.',
+        'telefono.regex' => 'El teléfono debe contener 9 dígitos.',
+
+        'clave.required' => 'La contraseña es obligatoria.',
+        'clave.min' => 'La contraseña debe tener al menos 8 caracteres.',
+
+        'tipouser.required' => 'El tipo de usuario es obligatorio.',
+        'tipouser.in' => 'El tipo de usuario debe ser "admin" o "usuario".',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    $data = $request->all();
+    $data['clave'] = bcrypt($data['clave']);
+
+    UsuarioModel::create($data);
+
+    return response()->json(['message' => 'Usuario creado correctamente'], 201);
+}
+
+
+    public function carrito()
+    {
+        return $this->hasOne(Carrito::class);
+    }
+
+  public function updatePerfil(Request $request)
+{
+    $user = $request->user();
+
+    $validatedData = Validator::make($request->all(), [
+        'nombre' => 'nullable|string|max:50',
+        'apellidos' => 'nullable|string|max:50',
+        'correo' => [
+            'nullable',
+            'email',
+            'max:50',
+            Rule::unique('usuarios', 'correo')->ignore($user->dni, 'dni'),
+        ],
+        'telefono' => 'nullable|numeric',
+        'usuario' => [
+            'nullable',
+            'string',
+            'max:100',
+            Rule::unique('usuarios', 'usuario')->ignore($user->dni, 'dni'),
+        ],
+        'clave' => 'nullable|string|min:8',
+    ], [
+        'correo.unique' => 'El correo ya está registrado.',
+        'usuario.unique' => 'El nombre de usuario ya está en uso.',
+    ]);
+
+    if ($validatedData->fails()) {
+        return response()->json(['errors' => $validatedData->errors()], 422);
+    }
+
+    $datos = array_filter($validatedData->validated(), fn($v) => $v !== null && $v !== '');
+
+    // Si viene 'clave', hashearla antes de guardar
+    if (isset($datos['clave'])) {
+        $datos['clave'] = bcrypt($datos['clave']);
+    }
+
+    $user->update($datos);
+
+    return response()->json(['message' => 'Perfil actualizado con éxito.']);
+}
+
+
+
 }

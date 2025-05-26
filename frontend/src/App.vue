@@ -105,6 +105,10 @@
                   Mis Datos
                 </router-link>
 
+                <router-link to="/mispedidos" @click="toggleUserMenu" class="block px-4 py-2 hover:bg-gray-600">
+                  Mis Pedidos
+                </router-link>
+
                 <!-- Botón Logout -->
                 <button @click="logout" class="block w-full text-left px-4 py-2 hover:bg-gray-600">
                   Cerrar Sesión
@@ -232,7 +236,7 @@
       <button @click="cerrarModalCarrito"
               class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Cerrar</button>
       <router-link to="/checkout"
-                   class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                   class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
                    @click="cerrarModalCarrito">Finalizar compra</router-link>
     </div>
   </div>
@@ -323,10 +327,13 @@ export default {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('userName', response.data.user.usuario);
         localStorage.setItem('userRole', response.data.user.tipouser);
+        localStorage.setItem('userDni', response.data.user.dni); // Almacena el DNI del usuario
+    
 
         this.userName = response.data.user.usuario;
         this.userRole = response.data.user.tipouser; // Almacena el rol del usuario
         this.isLoggedIn = true;
+        this.showUserMenu = false; // Cerrar menú de usuario por si estaba abierto
 
             // 🔥 Cargar productos del carrito tras login
 await this.cargarProductosCarrito();
@@ -334,7 +341,7 @@ await this.cargarProductosCarrito();
    Swal.fire({
   position: 'center', // 👈 Centro de la pantalla
   icon: 'success',
-  title: 'Producto añadido al carrito',
+  title: 'Bienvenido de nuevo, ' + this.userName,
   showConfirmButton: false,
   timer: 2000,
   timerProgressBar: true
@@ -357,6 +364,8 @@ await this.cargarProductosCarrito();
     logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('userName');
+      localStorage.removeItem('userRole'); // Eliminar el rol del usuario
+      localStorage.removeItem('userDni'); // Eliminar el DNI del usuario
 
       this.isLoggedIn = false;
       this.userName = '';
@@ -373,30 +382,21 @@ await this.cargarProductosCarrito();
     this.carritoModalAbierto = false
   },
 
-  async cargarProductosCarrito() {
-  const token = localStorage.getItem('token')
-  if (!token) {
-    console.warn('No hay token, usuario no autenticado')
-    return
-  }
-
-  this.cargandoCarrito = true // 🔄 Mostrar spinner
+ async cargarProductosCarrito() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
 
   try {
     const res = await axios.get('/carrito', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    this.productosCarrito = res.data?.productos || []
-    this.carritoCantidad = this.productosCarrito.reduce((sum, p) => sum + p.pivot.cantidad, 0)
+      headers: { Authorization: `Bearer ${token}` }
+    });
+ 
+    this.productosCarrito = res.data?.productos || [];
+    this.carritoCantidad = this.productosCarrito.reduce((sum, p) => sum + p.pivot.cantidad, 0);
   } catch (e) {
-    console.error('Error cargando carrito', e)
-    this.productosCarrito = []
-    this.carritoCantidad = 0
-  } finally {
-    this.cargandoCarrito = false // ✅ Ocultar spinner
+    console.error('Error cargando carrito', e);
+    this.productosCarrito = [];
+    this.carritoCantidad = 0;
   }
 },
 
@@ -422,11 +422,18 @@ async eliminarProducto(productoId) {
   } catch (e) {
     console.error('Error al eliminar producto', e)
   }
-}
+},
+
+actualizarNombreUsuario() {
+    this.userName = localStorage.getItem('userName');
+  }
   },
 
 
   mounted() {
+    
+
+     window.addEventListener('usuario-actualizado', this.actualizarNombreUsuario);
 
     // Comprobar si hay token al cargar el componente
     const token = localStorage.getItem('token');
@@ -440,10 +447,12 @@ async eliminarProducto(productoId) {
     }
     document.addEventListener('click', this.handleClickOutside);
     window.addEventListener('carrito-actualizado', this.cargarProductosCarrito);
+    
 
   },
   beforeUnmount() {
   window.removeEventListener('carrito-actualizado', this.cargarProductosCarrito);
+    window.removeEventListener('usuario-actualizado', this.actualizarNombreUsuario);
 },
 computed: {
   productosSeparados() {

@@ -3,15 +3,6 @@
         <h1 class="text-3xl font-bold text-center mb-8">Panel de Control</h1>
         <!-- Grid para máximo 3 columnas en pantallas grandes -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Card 1: Estadísticas -->
-            <router-link to="/estadisticas" class="card transform transition duration-300 hover:scale-105">
-                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-center items-center h-64">
-                    <!-- Puedes usar un ícono (por ej. Font Awesome) o una imagen -->
-                    <i class="pi pi-chart-line" style="font-size: 2.5rem"></i>
-
-                    <p class="mt-2 text-gray-600 text-center">Estadísticas de las ventas de la página.</p>
-                </div>
-            </router-link>
 
             <!-- Card 2: Gestión de Usuarios -->
             <router-link to="/admin/viewuser" class="card transform transition duration-300 hover:scale-105">
@@ -32,7 +23,7 @@
             </router-link>
 
               <!-- Card 3: Gestión de Pedidos -->
-              <router-link to="/gestion-productos" class="card transform transition duration-300 hover:scale-105">
+              <router-link to="/gestion-pedidos" class="card transform transition duration-300 hover:scale-105">
                 <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-center items-center h-64">
                     <i class="pi pi-box" style="font-size: 2.5rem"></i>
 

@@ -20,6 +20,9 @@ import TodosProductos from '@/views/productos/Todos.vue'
 import ChatAssistant from '@/views/usuarios/ChatAssistant.vue'
 import viewUser from '@/views/usuarios/GestionUser.vue'
 import Carrito from '@/views/carrito/Carrito.vue'
+import Pedidos from '@/views/usuarios/Pedidos.vue'
+import GestionPedidos from '@/views/usuarios/administrador/GestionPedidos.vue'
+import GestionProductos from '@/views/usuarios/administrador/GestionProductos.vue'
 
 const routes = [
 
@@ -39,6 +42,10 @@ const routes = [
     { path: '/categoria/merchandising', name: 'Merchandising', component: catMerchan},
     { path: '/categoria/consolas', name: 'Consolas', component: catConsola},
     { path: '/productos', name: 'Todos Productos', component: TodosProductos },
+    { path: '/mispedidos', name: 'Pedidos', component: Pedidos, meta: { requiresAuth: true } },
+    {path: '/gestion-pedidos', name: 'Gestion Pedidos', component: GestionPedidos, meta: { requiresAuth: true }, beforeEnter: isAdmin },
+        {path: '/gestion-productos', name: 'Gestion Productos', component: GestionProductos, meta: { requiresAuth: true }, beforeEnter: isAdmin },
+
 
     //Ruta de asistente virtual
     { path: '/chat', name: 'Chat Assistant', component: ChatAssistant, meta: { requiresAuth: true } },

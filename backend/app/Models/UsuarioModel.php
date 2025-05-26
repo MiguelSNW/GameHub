@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\ProductosModel;
+use App\Models\Carrito;
+use App\Models\Pedido;
+use App\Models\PedidoProducto;
 
 class UsuarioModel extends Authenticatable implements JWTSubject
 {
@@ -23,7 +27,6 @@ class UsuarioModel extends Authenticatable implements JWTSubject
         'apellidos',
         'correo',
         'telefono',
-        'nivel',
         'tipouser',
     ];
     public function getJWTIdentifier()
@@ -41,8 +44,19 @@ class UsuarioModel extends Authenticatable implements JWTSubject
     {
         return $this->clave;
     }
-    public function carrito()
+ public function carrito()
 {
     return $this->hasOne(Carrito::class, 'usuario_id', 'dni');
+}
+public function pedidos()
+{
+    return $this->hasMany(Pedido::class, 'usuario_dni', 'dni');
+}
+
+public function productos()
+{
+    return $this->belongsToMany(ProductosModel::class, 'carrito_producto', 'carrito_id', 'producto_id')
+                ->withPivot('cantidad')
+                ->withTimestamps();
 }
 }

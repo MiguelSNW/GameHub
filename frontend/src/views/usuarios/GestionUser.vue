@@ -9,10 +9,24 @@
     </template>
 
     <div class="table-container relative w-full">
-        <!-- Icono de usuario debajo del título y alineado a la izquierda -->
-        <button @click="openInsertModal" class="focus:outline-none">
-          <i class="pi pi-user-plus text-3xl text-violet-700 absolute top-2 left-5"></i>
-        </button>
+        <div class="w-full flex justify-start mt-4">
+  <button @click="openInsertModal" class="ml-4 flex items-center gap-2 bg-violet-700 hover:bg-violet-800 text-white px-4 py-2 rounded shadow">
+    <i class="pi pi-user-plus text-lg"></i>
+    <span class="text-sm">Añadir Usuario</span>
+  </button>
+</div>
+
+<!-- Filtro por nombre -->
+<div class="flex items-center gap-2 mb-4 mt-6">
+  <label for="filtroNombre" class="text-white font-semibold">Filtrar por nombre:</label>
+  <input
+    id="filtroNombre"
+    v-model="filtroNombre"
+    type="text"
+    placeholder="Buscar nombre..."
+    class="p-2 border rounded w-64"
+  />
+</div>
 
         <table class="table w-full table-auto shadow-lg rounded-lg bg-white mt-6">
             <thead class="bg-gray-800 text-white">
@@ -32,8 +46,15 @@
                     <td class="py-2 px-4 text-sm border border-black">{{ usuario.dni }}</td>
                     <td class="py-2 px-4 text-sm border border-black">{{ usuario.tipouser }}</td>
                     <td class="py-2 px-4 text-sm border border-black">
-                        <button @click="openModModal(usuario)" class="btn editar bg-green-500 text-white py-1 px-3 rounded text-xs mr-2">Editar</button>
-                          <button @click="deleteUser(usuario)" class="btn eliminar bg-red-500 text-white py-1 px-3 rounded text-xs">Eliminar</button>
+                      <!-- Botón de Editar (icono lápiz) -->
+<button @click="openModModal(usuario)" class="text-green-500 hover:text-green-700 text-xl mr-3">
+  <i class="pi pi-pencil"></i>
+</button>
+
+<!-- Botón de Eliminar (icono papelera) -->
+<button @click="deleteUser(usuario)" class="text-red-500 hover:text-red-700 text-xl">
+  <i class="pi pi-trash"></i>
+</button>
                     </td>
                 </tr>
             </tbody>
@@ -46,43 +67,37 @@
       <div class="mb-3">
         <label for="dni" class="block text-sm">DNI</label>
         <input v-model="user.dni" type="text" id="dni" class="w-full px-3 py-2 border rounded" />
-        <p v-if="errors.dni" class="text-red-500 text-sm">{{ errors.dni }}</p> <!-- Mensaje de error -->
+        <p v-if="errors.dni" class="text-red-500 text-sm">{{ errors.dni[0] }}</p> <!-- Mensaje de error -->
       </div>
 
       <div class="mb-3">
         <label for="nombre" class="block text-sm">Nombre</label>
         <input v-model="user.nombre" type="text" id="nombre" class="w-full px-3 py-2 border rounded" />
-        <p v-if="errors.nombre" class="text-red-500 text-sm">{{ errors.nombre }}</p> <!-- Mensaje de error -->
+        <p v-if="errors.nombre" class="text-red-500 text-sm">{{ errors.nombre[0] }}</p> <!-- Mensaje de error -->
       </div>
 
       <div class="mb-3">
         <label for="apellidos" class="block text-sm">Apellidos</label>
         <input v-model="user.apellidos" type="text" id="apellidos" class="w-full px-3 py-2 border rounded" />
-        <p v-if="errors.apellidos" class="text-red-500 text-sm">{{ errors.apellidos }}</p> <!-- Mensaje de error -->
+        <p v-if="errors.apellidos" class="text-red-500 text-sm">{{ errors.apellidos[0] }}</p> <!-- Mensaje de error -->
       </div>
 
       <div class="mb-3">
         <label for="usuario" class="block text-sm">Usuario</label>
         <input v-model="user.usuario" type="text" id="usuario" class="w-full px-3 py-2 border rounded" />
-        <p v-if="errors.usuario" class="text-red-500 text-sm">{{ errors.usuario }}</p> <!-- Mensaje de error -->
+        <p v-if="errors.usuario" class="text-red-500 text-sm">{{ errors.usuario[0] }}</p> <!-- Mensaje de error -->
       </div>
 
       <div class="mb-3">
         <label for="correo" class="block text-sm">Correo</label>
         <input v-model="user.correo" type="email" id="correo" class="w-full px-3 py-2 border rounded" />
-        <p v-if="errors.correo" class="text-red-500 text-sm">{{ errors.correo }}</p> <!-- Mensaje de error -->
+        <p v-if="errors.correo" class="text-red-500 text-sm">{{ errors.correo[0] }}</p> <!-- Mensaje de error -->
       </div>
 
       <div class="mb-3">
         <label for="telefono" class="block text-sm">Teléfono</label>
         <input v-model="user.telefono" type="text" id="telefono" class="w-full px-3 py-2 border rounded" />
-        <p v-if="errors.telefono" class="text-red-500 text-sm">{{ errors.telefono }}</p> <!-- Mensaje de error -->
-      </div>
-
-      <div class="mb-3">
-        <label for="nivel" class="block text-sm">Nivel</label>
-        <input v-model="user.nivel" type="text" id="nivel" class="w-full px-3 py-2 border rounded" />
-        <p v-if="errors.nivel" class="text-red-500 text-sm">{{ errors.nivel }}</p> <!-- Mensaje de error -->
+        <p v-if="errors.telefono" class="text-red-500 text-sm">{{ errors.telefono[0] }}</p> <!-- Mensaje de error -->
       </div>
 
       <div class="mb-3">
@@ -91,19 +106,19 @@
           <option value="admin">Administrador</option>
           <option value="usuario">Usuario</option>
         </select>
-        <p v-if="errors.tipouser" class="text-red-500 text-sm">{{ errors.tipouser }}</p> <!-- Mensaje de error -->
+        <p v-if="errors.tipouser" class="text-red-500 text-sm">{{ errors.tipouser[0] }}</p> <!-- Mensaje de error -->
       </div>
 
       <!-- Campo de Contraseña -->
       <div class="mb-3">
         <label for="clave" class="block text-sm">Contraseña</label>
         <input v-model="user.clave" type="password" id="clave" class="w-full px-3 py-2 border rounded" />
-        <p v-if="errors.clave" class="text-red-500 text-sm">{{ errors.clave }}</p> <!-- Mensaje de error -->
+        <p v-if="errors.clave" class="text-red-500 text-sm">{{ errors.clave[0] }}</p> <!-- Mensaje de error -->
       </div>
 
       <div class="flex justify-between mt-4">
-        <button type="button" @click="closeInsertModal" class="bg-gray-500 text-white py-2 px-4 rounded text-sm">Cancelar</button>
-        <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded text-sm">Guardar</button>
+        <button type="button" @click="closeInsertModal" class="bg-gray-400 text-black py-2 px-4 rounded text-sm">Cancelar</button>
+        <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded text-sm">Guardar</button>
       </div>
     </form>
   </div>
@@ -122,37 +137,32 @@
                 <label for="dni" class="block text-sm">DNI</label>
                 <input v-model="user.dni" type="text" id="dni" class="w-full px-3 py-2 border rounded" />
                 <!-- Error de validación -->
-                <p v-if="errors.dni" class="text-red-500 text-sm">{{ errors.dni }}</p>
+                <p v-if="errors.dni" class="text-red-500 text-sm">{{ errors.dni[0] }}</p>
             </div>
             <div class="mb-4">
                 <label for="nombre" class="block text-sm">Nombre</label>
                 <input v-model="user.nombre" type="text" id="nombre" class="w-full px-3 py-2 border rounded" />
-                <p v-if="errors.nombre" class="text-red-500 text-sm">{{ errors.nombre }}</p>
+                <p v-if="errors.nombre" class="text-red-500 text-sm">{{ errors.nombre[0] }}</p>
             </div>
             <div class="mb-4">
                 <label for="apellidos" class="block text-sm">Apellidos</label>
                 <input v-model="user.apellidos" type="text" id="apellidos" class="w-full px-3 py-2 border rounded" />
-                <p v-if="errors.apellidos" class="text-red-500 text-sm">{{ errors.apellidos }}</p>
+                <p v-if="errors.apellidos" class="text-red-500 text-sm">{{ errors.apellidos[0] }}</p>
             </div>
             <div class="mb-4">
                 <label for="usuario" class="block text-sm">Usuario</label>
                 <input v-model="user.usuario" type="text" id="usuario" class="w-full px-3 py-2 border rounded" />
-                <p v-if="errors.usuario" class="text-red-500 text-sm">{{ errors.usuario }}</p>
+                <p v-if="errors.usuario" class="text-red-500 text-sm">{{ errors.usuario[0] }}</p>
             </div>
             <div class="mb-4">
                 <label for="correo" class="block text-sm">Correo</label>
                 <input v-model="user.correo" type="email" id="correo" class="w-full px-3 py-2 border rounded" />
-                <p v-if="errors.correo" class="text-red-500 text-sm">{{ errors.correo }}</p>
+                <p v-if="errors.correo" class="text-red-500 text-sm">{{ errors.correo[0] }}</p>
             </div>
             <div class="mb-4">
                 <label for="telefono" class="block text-sm">Teléfono</label>
                 <input v-model="user.telefono" type="text" id="telefono" class="w-full px-3 py-2 border rounded" />
-                <p v-if="errors.telefono" class="text-red-500 text-sm">{{ errors.telefono }}</p>
-            </div>
-            <div class="mb-4">
-                <label for="nivel" class="block text-sm">Nivel</label>
-                <input v-model="user.nivel" type="number" id="nivel" min="0" max="10" class="w-full px-3 py-2 border rounded" />
-                <p v-if="errors.nivel" class="text-red-500 text-sm">{{ errors.nivel }}</p>
+                <p v-if="errors.telefono" class="text-red-500 text-sm">{{ errors.telefono[0] }}</p>
             </div>
             <div class="mb-4">
                 <label for="tipouser" class="block text-sm">Tipo de Usuario</label>
@@ -160,7 +170,7 @@
                     <option value="admin">Administrador</option>
                     <option value="usuario">Usuario</option>
                 </select>
-                <p v-if="errors.tipouser" class="text-red-500 text-sm">{{ errors.tipouser }}</p>
+                <p v-if="errors.tipouser" class="text-red-500 text-sm">{{ errors.tipouser[0] }}</p>
             </div>
 
             <!-- Campo de Contraseña (Opcional) -->
@@ -170,8 +180,8 @@
             </div>
 
             <div class="flex justify-between">
-                <button type="button" @click="closeModModal" class="bg-gray-500 text-white py-2 px-4 rounded">Cancelar</button>
-                <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Guardar</button>
+                <button type="button" @click="closeModModal" class="bg-gray-400 text-black py-2 px-4 rounded">Cancelar</button>
+                <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded">Guardar</button>
             </div>
         </form>
     </div>
@@ -214,6 +224,9 @@ import LoadingScreen from '@/components/LoadingScreen.vue'
 export default {
     data() {
         return {
+             usuarios: [],
+isLoading: true,
+filtroNombre: '',
             showModModal: false,  // Estado del modal
             showInsertModal: false,  // Estado del modal de inserción
             user: {
@@ -221,7 +234,6 @@ export default {
                 usuario: '',
                 correo: '',
                 telefono: '',
-                nivel: '',
                 tipouser: 'usuario',
             },
             originalDni: '',  // Guardamos el DNI original para la comparación
@@ -230,6 +242,17 @@ export default {
         };
     },
     methods: {
+         async obtenerUsuarios() {
+        try {
+            const response = await axios.get('/viewuser');
+            this.usuarios = response.data;
+            this.isLoading = false;
+        } catch (error) {
+            console.error('Error al obtener los usuarios:', error);
+            this.isLoading = false;
+        }
+        },
+
         openInsertModal() {
       this.showInsertModal = true;
       this.user = { // Reiniciar el objeto user al abrir el modal
@@ -239,7 +262,6 @@ export default {
         usuario: '',
         correo: '',
         telefono: '',
-        nivel: '',
         tipouser: 'usuario',
       };
       this.errors = {}; // Limpiar errores al abrir el modal
@@ -249,80 +271,52 @@ export default {
       this.showInsertModal = false;
     },
 
-    async insertUser() {
-        this.errors = {}; // Limpiar errores anteriores
-        let isValid = true;
+   async insertUser() {
+    this.errors = {}; // Limpiar errores anteriores
 
-        // Validaciones
-        if (!this.user.dni) {
-            this.errors.dni = 'El DNI es requerido';
-            isValid = false;
-        }
-        if (!this.user.nombre) {
-            this.errors.nombre = 'El nombre es requerido';
-            isValid = false;
-        }
-        if (!this.user.apellidos) {
-            this.errors.apellidos = 'Los apellidos son requeridos';
-            isValid = false;
-        }
-        if (!this.user.usuario) {
-            this.errors.usuario = 'El usuario es requerido';
-            isValid = false;
-        }
-        if (!this.user.correo || !this.validEmail(this.user.correo)) {
-            this.errors.correo = 'Correo inválido o requerido';
-            isValid = false;
-        }
-        if (!this.user.telefono) {
-            this.errors.telefono = 'El teléfono es requerido';
-            isValid = false;
-        }
-        if (!this.user.nivel || isNaN(this.user.nivel)) {
-            this.errors.nivel = 'Nivel debe ser un número válido';
-            isValid = false;
-        }
-        if (this.user.nivel < 0 || this.user.nivel > 10) {
-            this.errors.nivel = 'Nivel debe estar entre 0 y 10';
-            isValid = false;
-        }
-        if (!this.user.tipouser) {
-            this.errors.tipouser = 'Tipo de usuario requerido';
-            isValid = false;
-        }
+    try {
+       const response = await axios.post('/insertuser', this.user);
 
-        if (!isValid) {
-            return; // Si no es válido, no continuar
-        }
+if (response.status === 201) {
+    Swal.fire({
+        title: 'Usuario creado!',
+        text: 'El nuevo usuario fue creado correctamente.',
+        icon: 'success'
+    });
 
-        try {
-            // Llamada a la API para insertar el usuario
-            const response = await axios.post('/insertuser', this.user);
-            Swal.fire({
-                title: 'Usuario creado!',
-                text: 'El nuevo usuario fue creado correctamente.',
-                icon: 'success'
-            });
-        } catch (error) {
-            console.error('Error al insertar el usuario:', error);
-            Swal.fire({
-                title: 'Error',
-                text: 'Hubo un problema al crear el usuario.',
-                icon: 'error'
-            });
-        }
-    },
+    this.closeInsertModal();
+    await this.obtenerUsuarios();
+} else {
+    throw new Error('Respuesta inesperada del servidor');
+}
+    } catch (error) {
+    if (error.response && error.response.status === 422) {
+        this.errors = error.response.data.errors; // errores de validación
+    } else {
+        console.error('Detalles del error:', error.response?.data || error);
+        Swal.fire({
+            title: 'Error',
+            text: error.response?.data?.message || 'Hubo un problema al crear el usuario.',
+            icon: 'error'
+        });
+    }
+}
+},
     validEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     },
 
         openModModal(userData) {
-            this.user = { ...userData };
-            this.originalDni = userData.dni;
-            this.showModModal = true;
-            this.updateSuccessMessage = false;  // Resetear el mensaje de confirmación
-        },
+    this.user = {
+        ...userData,
+        clave: '' // Vaciar campo contraseña
+    };
+    this.errors = {}; // Limpiar errores previos
+    this.originalDni = userData.dni;
+    this.showModModal = true;
+    this.updateSuccessMessage = false;
+},
         closeModModal() {
             this.showModModal = false;
         },
@@ -338,7 +332,7 @@ export default {
 
             try {
                 // Llamada a la API para actualizar el usuario
-                const response = await axios.put(`/updateuser/${this.user.dni}`, this.user, {
+                const response = await axios.put(`/updateuser/${this.originalDni}`, this.user, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -372,8 +366,21 @@ export default {
                 });
 
             } catch (error) {
-                console.error('Error al actualizar el usuario:', error);
-            }
+    console.error('Error al actualizar el usuario:', error);
+
+    // Captura errores de validación 422
+    if (error.response && error.response.status === 422) {
+        this.errors = error.response.data.errors;
+    } else {
+        Swal.fire({
+            title: 'Error',
+            text: 'Hubo un problema al actualizar el usuario.',
+            icon: 'error'
+        });
+    }
+}
+
+
         },
 
         validateFields() {
@@ -394,10 +401,6 @@ export default {
                 alert("Teléfono no válido.");
                 return false;
             }
-            if (this.user.nivel < 0 || this.user.nivel > 10) {
-                alert("Nivel debe estar entre 0 y 10.");
-                return false;
-            }
             return true;
         },
 
@@ -408,8 +411,8 @@ export default {
                 text: "¡No podrás revertir esto!",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
+                confirmButtonColor: "#6d2e9e",
+                cancelButtonColor: "#cec6d5",
                 confirmButtonText: "Sí, eliminarlo!"
             }).then(async (result) => {
                 if (result.isConfirmed) {
@@ -438,14 +441,18 @@ export default {
             });
         }
     },
+    mounted() {
+    this.obtenerUsuarios();
+},
     components: {
         LoadingScreen
     },
     setup() {
+        const filtroNombre = ref('');
         const usuarios = ref([]);
         const isLoading = ref(true);
         const currentPage = ref(1);
-        const usersPerPage = 10;
+        const usersPerPage = 8;
         const showDelModal = ref(false); // Para mostrar u ocultar el modal
         const userToDelete = ref(null); // Usuario seleccionado para eliminar
 
@@ -465,13 +472,17 @@ export default {
         // Calculamos el total de páginas
         const totalPages = computed(() => Math.ceil(usuarios.value.length / usersPerPage));
 
-        // Filtramos los usuarios a mostrar en la página actual
-        const paginatedUsuarios = computed(() => {
-            const startIndex = (currentPage.value - 1) * usersPerPage;
-            const endIndex = startIndex + usersPerPage;
-            return usuarios.value.slice(startIndex, endIndex);
-        });
+const usuariosFiltrados = computed(() => {
+    return usuarios.value.filter(usuario =>
+        usuario.nombre.toLowerCase().includes(filtroNombre.value.toLowerCase())
+    );
+});
 
+const paginatedUsuarios = computed(() => {
+    const startIndex = (currentPage.value - 1) * usersPerPage;
+    const endIndex = startIndex + usersPerPage;
+    return usuariosFiltrados.value.slice(startIndex, endIndex);
+});
         // Función para cambiar a la página siguiente
         const nextPage = () => {
             if (currentPage.value < totalPages.value) {
@@ -489,6 +500,8 @@ export default {
     
 
         return {
+              filtroNombre,
+                usuariosFiltrados,
             usuarios,
             isLoading,
             currentPage,

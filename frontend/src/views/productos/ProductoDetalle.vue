@@ -18,18 +18,26 @@
       </p>
 
       <p class="text-3xl font-bold">
-        {{ producto.precio }}€
-        <span
-          class="ml-4 px-3 py-1 rounded-full text-white text-sm"
-          :class="esPrecompra ? 'bg-violet-950' : 'bg-indigo-700'"
-        >
-          <button @click="añadirAlCarrito">
-            {{ esPrecompra ? '¡Precompra YA!' : '¡Compra YA!' }}
-          </button>
-        </span>
-      </p>
+  {{ producto.precio }}€
+  <span
+    class="ml-4 px-3 py-1 rounded-full text-white text-sm"
+    :class="producto.stock > 0 ? (esPrecompra ? 'bg-violet-950' : 'bg-indigo-700') : 'bg-gray-400 cursor-not-allowed'"
+  >
+    <button @click="añadirAlCarrito" :disabled="producto.stock <= 0">
+      {{ producto.stock > 0 ? (esPrecompra ? '¡Precompra YA!' : '¡Compra YA!') : 'Sin stock' }}
+    </button>
+  </span>
+</p>
+<p v-if="producto.stock <= 0" class="text-red-600 mt-2 font-semibold">
+  Producto sin stock disponible.
+</p>
 
-      <p v-if="mensaje" style="color: green; margin-top: 10px;">{{ mensaje }}</p>
+      <p
+  v-if="mensaje"
+  class="mt-2 p-3 border-2 border-purple-400 rounded text-purple-700 bg-purple-100"
+>
+  {{ mensaje }}
+</p>
     </div>
   </div>
 </template>
@@ -73,9 +81,6 @@ const añadirAlCarrito = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     mensaje.value = 'Debes iniciar sesión para añadir al carrito.'
-    setTimeout(() => {
-      router.push('/login')
-    }, 1500)
     return
   }
 

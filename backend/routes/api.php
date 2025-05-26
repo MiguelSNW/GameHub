@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\UsuarioCtrl;
 use App\Http\Controllers\CarritoController;
+use App\Http\Controllers\PedidoController;
+use App\Http\Middleware\CorsMiddleware;
 
 
 // Dashboard resumen
@@ -27,7 +29,7 @@ Route::get('/viewuser', function () {
 
 
 Route::middleware('auth:api')->delete('/deleteuser/{dni}', [UsuarioCtrl::class, 'deleteUserByDni']);
-
+Route::middleware('auth:api')->post('/carrito/validar-stock', [CarritoController::class, 'validarStock']);
 Route::delete('/viewuser/{dni}', function ($dni) {
     UsuarioModel::destroy($dni);
     return response()->json(['mensaje' => 'Usuario eliminado']);
@@ -37,7 +39,7 @@ Route::put('/updateuser/{dni}', [UsuarioCtrl::class, 'updateUser'])->middleware(
 Route::post('/insertuser', [UsuarioCtrl::class, 'store'])->middleware('auth:api'); // Asegura que solo usuarios autenticados puedan acceder
 
 
-
+Route::middleware('auth:api')->put('/actualizar-usuario', [UsuarioCtrl::class, 'updatePerfil']);
 
 Route::middleware('jwt.auth')->get('/getUser', function (Request $request) {
     return response()->json($request->user());
@@ -105,4 +107,26 @@ Route::post('/chat', function (Request $request) {
 // CARRITO
 Route::middleware(['auth:api'])->post('/carrito', [CarritoController::class, 'store']);
 Route::middleware('auth:api')->get('/carrito', [CarritoController::class, 'index']);
+Route::middleware('auth:api')->post('/carrito/vaciar', [CarritoController::class, 'vaciar']);
 Route::middleware('auth:api')->delete('/carrito/{producto_id}', [CarritoController::class, 'destroy']);
+Route::middleware('auth:api')->post('/carrito/borrar-stock', [CarritoController::class, 'borrarStock']);
+
+
+// PEDIDOS 
+Route::middleware([CorsMiddleware::class])->post('/crear-pedido', [PedidoController::class, 'crearPedido']);
+Route::middleware('auth')->get('/obtener-usuario', [PedidoController::class, 'obtenerUsuario']);
+Route::middleware('auth:api')->get('/obtener-pedidos-usuario', [PedidoController::class, 'obtenerPedidosUsuario']);
+Route::middleware('auth:api')->get('/obtener-pedidos-todos-usuarios', [PedidoController::class, 'obtenerPedidosTodosUsuarios']);
+Route::middleware('auth:api')->get('/pedido-detalles/{id}', [PedidoController::class, 'obtenerDetalles']);
+Route::middleware('auth:api')->post('/procesar-pedido/{id}', [PedidoController::class, 'procesar']);
+Route::middleware('auth:api')->post('/pedidos/{id}/cancelar', [PedidoController::class, 'cancelarPedido']);
+
+//PRODUCTOS
+
+Route::middleware('auth:api')->get('/productos', [ProductoCtrl::class, 'index']);
+Route::get('/categorias', [ProductoCtrl::class, 'categorias']);
+Route::get('/plataformas', [ProductoCtrl::class, 'plataformas']);
+Route::post('/productos/{id}/actualizar', [ProductoCtrl::class, 'actualizarConImagen']);
+Route::post('/productos', [ProductoCtrl::class, 'store']);
+Route::delete('/productos/{id}/eliminar', [ProductoCtrl::class, 'destroy']);
+Route::delete('/pedidos/historial', [PedidoController::class, 'borrarHistorial']);

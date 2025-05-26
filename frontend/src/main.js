@@ -5,6 +5,7 @@ import App from './App.vue';
 import './assets/fonts.css';
 import axios from 'axios';
 
+
 const app = createApp(App);
 app.use(router);
 app.mount('#app');
@@ -12,13 +13,20 @@ app.mount('#app');
 // Configura Axios globalmente
 axios.defaults.baseURL = 'http://localhost:8000/api';  // URL de tu backend Laravel
 axios.defaults.withCredentials = true;  // Permite el uso de cookies, si es necesario
+axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 
-// Configura Axios para enviar el token CSRF en las solicitudes
+// Configura Axios para enviar el token CSRF y JWT en las solicitudes
 axios.interceptors.request.use(config => {
-  const token = document.head.querySelector('meta[name="csrf-token"]');  // Obtener el token CSRF del meta tag
+  // Obtiene el token CSRF del meta tag
+  const csrfToken = document.head.querySelector('meta[name="csrf-token"]');  
+  if (csrfToken) {
+    config.headers['X-CSRF-TOKEN'] = csrfToken.content;  // Enviar el CSRF token en los encabezados
+  }
 
-  if (token) {
-    config.headers['X-CSRF-TOKEN'] = token.content;  // Enviar el token en los encabezados de la solicitud
+  // Obtiene el token JWT de localStorage y lo agrega a los encabezados si existe
+  const jwtToken = localStorage.getItem('token');
+  if (jwtToken) {
+    config.headers['Authorization'] = `Bearer ${jwtToken}`;  // Enviar el JWT token en los encabezados
   }
 
   return config;
