@@ -40,5 +40,8 @@ class ProductosModel extends Model
             ->withPivot('cantidad')
             ->withTimestamps();
     }
-  
+  public function plataformas()
+{
+    return Plataforma::select('plataforma_id', 'nombre')->get();
+}
 }

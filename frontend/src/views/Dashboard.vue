@@ -194,10 +194,10 @@ onMounted(() => {
             <img :src="`/${producto.imagen}`" alt="Carátula del juego"
                  class="h-[250px] w-full object-contain mb-4 rounded" />
             <div>
-              <h3 class="text-lg font-semibold text-violet-700 hover:text-blue-800 transition-colors">
+              <h3 class="text-lg font-semibold text-white hover:text-blue-800 transition-colors">
                 {{ producto.nombre }}
               </h3>
-              <p class="text-gray-700">{{ producto.precio }}€</p>
+              <p class="text-purple-600">{{ producto.precio }}€</p>
             </div>
           </div>
         </router-link>
@@ -248,14 +248,14 @@ onMounted(() => {
           :to="`/producto/${producto.id}`" 
           class="block"
         >
-          <div class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
+         <div class="border border-slate-900 bg-indigo-950 p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
             <img :src="`/${producto.imagen}`" alt="Carátula del juego"
                  class="h-[250px] w-full object-contain mb-4 rounded" />
             <div>
-              <h3 class="text-lg font-semibold text-violet-700 hover:text-blue-800 transition-colors">
+              <h3 class="text-lg font-semibold text-white hover:text-blue-800 transition-colors">
                 {{ producto.nombre }}
               </h3>
-              <p class="text-gray-700">{{ producto.precio }}€</p>
+              <p class="text-purple-600">{{ producto.precio }}€</p>
             </div>
           </div>
         </router-link>
@@ -302,17 +302,14 @@ onMounted(() => {
           :to="`/producto/${producto.id}`" 
           class="block"
         >
-          <div class="bg-white p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
-            <img 
-              :src="`/${producto.imagen}`" 
-              alt="Carátula del juego" 
-              class="h-[250px] w-full object-contain mb-4 rounded" 
-            />
+         <div class="border border-slate-900 bg-indigo-950 p-4 rounded shadow transition-transform transform hover:-translate-y-1 hover:shadow-lg h-[400px] flex flex-col justify-between">
+            <img :src="`/${producto.imagen}`" alt="Carátula del juego"
+                 class="h-[250px] w-full object-contain mb-4 rounded" />
             <div>
-              <h3 class="text-lg font-semibold text-violet-700 hover:text-blue-800 transition-colors">
+              <h3 class="text-lg font-semibold text-white hover:text-blue-800 transition-colors">
                 {{ producto.nombre }}
               </h3>
-              <p class="text-gray-700">{{ producto.precio }}€</p>
+              <p class="text-purple-600">{{ producto.precio }}€</p>
             </div>
           </div>
         </router-link>

@@ -65,6 +65,7 @@ Route::get('/productos/categorias/consolas', [ProductoCtrl::class, 'catConsolas'
 
 // Login
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/registro', [AuthController::class, 'registro']);
 
 
 //INTENTO DE CHATBOT
@@ -123,10 +124,11 @@ Route::middleware('auth:api')->post('/pedidos/{id}/cancelar', [PedidoController:
 
 //PRODUCTOS
 
-Route::middleware('auth:api')->get('/productos', [ProductoCtrl::class, 'index']);
+Route::get('/productos', [ProductoCtrl::class, 'index']);
 Route::get('/categorias', [ProductoCtrl::class, 'categorias']);
 Route::get('/plataformas', [ProductoCtrl::class, 'plataformas']);
 Route::post('/productos/{id}/actualizar', [ProductoCtrl::class, 'actualizarConImagen']);
 Route::post('/productos', [ProductoCtrl::class, 'store']);
 Route::delete('/productos/{id}/eliminar', [ProductoCtrl::class, 'destroy']);
 Route::delete('/pedidos/historial', [PedidoController::class, 'borrarHistorial']);
+Route::get('/plataforma', [ProductoCtrl::class, 'plataformas']);

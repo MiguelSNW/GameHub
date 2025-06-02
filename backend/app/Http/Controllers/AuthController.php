@@ -11,40 +11,89 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    // Método para iniciar sesión
-    public function login(Request $request)
+  public function login(Request $request)
+{
+    // Mensajes personalizados
+    $mensajes = [
+        'correo.required' => 'El campo correo es obligatorio.',
+        'correo.email'    => 'El correo debe tener un formato válido.',
+        'clave.required'  => 'La contraseña es obligatoria.',
+    ];
+
+    // Validación con mensajes personalizados
+    $validator = Validator::make($request->all(), [
+        'correo' => 'required|email',
+        'clave'  => 'required',
+    ], $mensajes);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 400);
+    }
+
+    $user = UsuarioModel::where('correo', $request->correo)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'Credenciales inválidas. No existe el correo.'], 401);
+    }
+
+    if (!Hash::check($request->clave, $user->clave)) {
+        return response()->json(['message' => 'Credenciales inválidas. Clave errónea.'], 401);
+    }
+
+    $token = JWTAuth::fromUser($user);
+
+    return response()->json([
+        'token'    => $token,
+        'user'     => $user,
+        'userRole' => $user->tipousuario,
+    ]);
+}
+
+   public function registro(Request $request)
     {
-        // Validar la entrada (correo y contraseña)
         $validator = Validator::make($request->all(), [
-            'correo' => 'required|email',  // Validar que el correo esté presente y sea válido
-            'clave' => 'required',         // Validar que la contraseña esté presente
-        ]);
+    'dni'       => 'required|string|max:20|unique:usuarios,dni',
+    'usuario'   => 'required|string|max:255|unique:usuarios,usuario',
+    'nombre'    => 'required|string|max:255',
+    'apellidos' => 'required|string|max:255',
+    'correo'    => 'required|email|max:255|unique:usuarios,correo',
+    'telefono'  => 'required|string|max:20',
+    'clave'     => 'required|string|min:6|confirmed',
+], [
+    'dni.required'       => 'El DNI es obligatorio.',
+    'dni.unique'         => 'El DNI ya está registrado.',
+    'usuario.required'   => 'El nombre de usuario es obligatorio.',
+    'usuario.unique'     => 'El nombre de usuario ya está en uso.',
+    'nombre.required'    => 'El nombre es obligatorio.',
+    'apellidos.required' => 'Los apellidos son obligatorios.',
+    'correo.required'    => 'El correo electrónico es obligatorio.',
+    'correo.email'       => 'El correo electrónico debe ser válido.',
+    'correo.unique'      => 'El correo electrónico ya está registrado.',
+    'telefono.required'  => 'El teléfono es obligatorio.',
+    'clave.required'     => 'La contraseña es obligatoria.',
+    'clave.min'          => 'La contraseña debe tener al menos :min caracteres.',
+    'clave.confirmed'    => 'Las contraseñas no coinciden.',
+]);
+
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Buscar el usuario por correo electrónico
-        $user = UsuarioModel::where('correo', $request->correo)->first();
-
-        // Si el usuario no existe, devolver un error
-        if (!$user) {
-            return response()->json(['message' => 'Credenciales inválidas'], 401);
-        }
-
-        // Verificar si la contraseña coincide (usando el Hash de Laravel)
-        if (!Hash::check($request->clave, $user->clave)) {
-            return response()->json(['message' => 'Credenciales inválidas'], 401);
-        }
-
-        // Generar el token JWT para el usuario autenticado
-        $token = JWTAuth::fromUser($user);
-
-        // Devolver el token y la información del usuario
-        return response()->json([
-            'token' => $token,
-            'user' => $user,
-            'userRole' => $user->tipousuario,
+        $usuario = UsuarioModel::create([
+            'dni'       => $request->dni,
+            'usuario'   => $request->usuario,
+            'nombre'    => $request->nombre,
+            'apellidos' => $request->apellidos,
+            'correo'    => $request->correo,
+            'telefono'  => $request->telefono,
+            'clave'     => bcrypt($request->clave),
+            'tipouser'  => 'usuario', // Rol fijo automático
         ]);
+
+        return response()->json([
+            'message' => 'Usuario registrado con éxito',
+            'user'    => $usuario,
+        ], 201);
     }
 }

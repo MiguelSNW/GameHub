@@ -66,12 +66,17 @@
 
 
             <!-- Mostrar botón de iniciar sesión si no está logueado -->
-            <div v-if="!isLoggedIn">
-              <button @click="openModal"
-                class="inline-flex items-center justify-center hover:bg-gray-700 px-4 py-2 rounded transition text-white">
-                Iniciar Sesión
-              </button>
-            </div>
+            <div v-if="!isLoggedIn" class="flex space-x-2">
+  <button @click="openModal"
+          class="inline-flex items-center justify-center hover:bg-gray-700 px-4 py-2 rounded transition text-white">
+    Iniciar Sesión
+  </button>
+
+  <button @click="openRegistroModal"
+          class="inline-flex items-center justify-center hover:bg-gray-700 px-4 py-2 rounded transition text-white">
+    Registrarse
+  </button>
+</div>
 
             
             <!-- Mostrar nombre de usuario y menú desplegable si está logueado -->
@@ -131,14 +136,14 @@
                 <div class="mb-4">
                   <input v-model="email" type="text"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    placeholder="Correo electrónico" required />
+                    placeholder="Correo electrónico"  />
                   <p v-if="errors.email" class="text-red-500 text-sm mt-2">{{ errors.email }}</p>
                 </div>
 
                 <div class="mb-6">
                   <input v-model="password" type="password"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    placeholder="Contraseña" required />
+                    placeholder="Contraseña"  />
                   <p v-if="errors.password" class="text-red-500 text-sm mt-2">{{ errors.password }}</p>
                 </div>
 
@@ -164,6 +169,114 @@
               </button>
             </div>
           </div>
+
+          <!-- Modal Registro -->
+<div v-if="registroModalOpen"
+     class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 transition-opacity"
+     :class="{ 'opacity-100': registroModalOpen, 'opacity-0': !registroModalOpen }">
+  <div class="bg-white p-8 rounded-2xl shadow-xl transition-transform transform max-w-md w-full"
+       :class="{ 'scale-100': registroModalOpen, 'scale-95': !registroModalOpen }">
+
+    <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Registrarse</h2>
+
+   <form @submit.prevent="submitRegistro" class="text-black">
+
+        <div class="mb-4">
+          <input v-model="registroForm.dni" type="text"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                 placeholder="DNI" />
+          <p v-if="registroErrors.dni" class="text-red-500 text-sm mt-2">
+            {{ Array.isArray(registroErrors.dni) ? registroErrors.dni[0] : registroErrors.dni }}
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <input v-model="registroForm.nombre" type="text"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                 placeholder="Nombre" />
+          <p v-if="registroErrors.nombre" class="text-red-500 text-sm mt-2">
+            {{ Array.isArray(registroErrors.nombre) ? registroErrors.nombre[0] : registroErrors.nombre }}
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <input v-model="registroForm.apellidos" type="text"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                 placeholder="Apellidos" />
+          <p v-if="registroErrors.apellidos" class="text-red-500 text-sm mt-2">
+            {{ Array.isArray(registroErrors.apellidos) ? registroErrors.apellidos[0] : registroErrors.apellidos }}
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <input v-model="registroForm.usuario" type="text"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                 placeholder="Nombre de usuario" />
+          <p v-if="registroErrors.usuario" class="text-red-500 text-sm mt-2">
+            {{ Array.isArray(registroErrors.usuario) ? registroErrors.usuario[0] : registroErrors.usuario }}
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <input v-model="registroForm.correo" type="email"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                 placeholder="Correo electrónico" />
+          <p v-if="registroErrors.correo" class="text-red-500 text-sm mt-2">
+            {{ Array.isArray(registroErrors.correo) ? registroErrors.correo[0] : registroErrors.correo }}
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <input v-model="registroForm.telefono" type="text"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                 placeholder="Teléfono" />
+          <p v-if="registroErrors.telefono" class="text-red-500 text-sm mt-2">
+            {{ Array.isArray(registroErrors.telefono) ? registroErrors.telefono[0] : registroErrors.telefono }}
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <input v-model="registroForm.clave" type="password"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                 placeholder="Contraseña" />
+          <p v-if="registroErrors.clave" class="text-red-500 text-sm mt-2">
+            {{ Array.isArray(registroErrors.clave) ? registroErrors.clave[0] : registroErrors.clave }}
+          </p>
+        </div>
+
+        <div class="mb-6">
+          <input v-model="registroForm.confirmarClave" type="password"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                 placeholder="Confirmar contraseña" />
+          <p v-if="registroErrors.confirmarClave" class="text-red-500 text-sm mt-2">
+            {{ Array.isArray(registroErrors.confirmarClave) ? registroErrors.confirmarClave[0] : registroErrors.confirmarClave }}
+          </p>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-green-600 transition">
+          Registrarse
+        </button>
+
+      </form>
+
+    <p v-if="registroErrorGeneral" class="text-red-500 text-sm mt-4 text-center">
+      {{ registroErrorGeneral }}
+    </p>
+
+    <!-- Botón para cerrar el modal -->
+    <button @click="closeRegistroModal"
+            class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+  </div>
+</div>
+
         </div>
       </div>
 
@@ -266,6 +379,20 @@ export default {
         email: '',
         password: ''
       },
+       // Registro
+    registroModalOpen: false,
+   registroForm: {
+  dni: '',
+  usuario: '',
+  nombre: '',
+  apellidos: '',
+  correo: '',
+  telefono: '',
+  clave: '',
+  confirmarClave: '',
+},
+registroErrors: {},
+registroErrorGeneral: '',
       loginError: '', // Aquí se mostrará el error general (credenciales)
       carritoModalAbierto: false,
       carritoCantidad: 0,
@@ -301,6 +428,67 @@ export default {
       }
     },
 
+     async submitRegistro() {
+  this.registroErrors = {};
+  this.registroErrorGeneral = '';
+
+  try {
+    const response = await axios.post('/registro', {
+      dni: this.registroForm.dni,
+      usuario: this.registroForm.usuario,
+      nombre: this.registroForm.nombre,
+      apellidos: this.registroForm.apellidos,
+      correo: this.registroForm.correo,
+      telefono: this.registroForm.telefono,
+      clave: this.registroForm.clave,
+      clave_confirmation: this.registroForm.confirmarClave,
+    }, {
+      withCredentials: true,
+    });
+
+    Swal.fire({
+      position: 'center',
+      icon: 'success',
+      title: 'Registro exitoso. ¡Bienvenido, ' + response.data.user.usuario + '!',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    });
+
+    this.closeRegistroModal();
+
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      this.registroErrors = error.response.data.errors;
+    } else if (error.response?.data?.message) {
+      this.registroErrorGeneral = error.response.data.message;
+    } else {
+      this.registroErrorGeneral = 'Error desconocido. Intenta de nuevo.';
+    }
+  }
+},
+
+
+ // Ya tienes openModal y closeModal para login
+  openRegistroModal() {
+    this.registroModalOpen = true;
+    this.clearRegistroForm();
+  },
+  closeRegistroModal() {
+    this.registroModalOpen = false;
+    this.registroErrors = {};
+    this.registroErrorGeneral = '';
+  },
+  clearRegistroForm() {
+    this.registroForm = {
+      usuario: '',
+      correo: '',
+      clave: '',
+      confirmarClave: '',
+    };
+    this.registroErrors = {};
+    this.registroErrorGeneral = '';
+  },
 
     async submitLogin() {
   
